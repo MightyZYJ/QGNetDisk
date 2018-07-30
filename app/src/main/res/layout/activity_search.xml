@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EDEDED"
+    android:orientation="vertical"
+    tools:context=".ui.SearchActivity">
+
+    <!--<include layout="@layout/layout_search_top" />-->
+
+    <com.mobile.qg.qgnetdisk.widget.search.SearchTopView
+        android:id="@+id/search_top"
+        android:layout_width="match_parent"
+        android:layout_height="68dp" />
+    <include layout="@layout/layout_search_content" />
+
+</LinearLayout>

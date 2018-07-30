@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/login_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp">
+
+        <ImageView
+            android:id="@+id/img_login"
+            android:layout_width="16dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="66dp"
+            android:background="@drawable/icon_navigationbar"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="4dp"
+            android:layout_toEndOf="@id/img_login"
+            android:text="登录"
+            android:textColor="#1F1F1F"
+            android:textSize="28sp" />
+
+
+        <ImageView
+            android:id="@+id/img_register"
+            android:layout_width="16dp"
+            android:layout_height="44dp"
+            android:layout_toStartOf="@id/tv_register"
+            android:background="@drawable/icon_navigationbar"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="67dp"
+            android:text="注册"
+            android:textColor="#1f1f1f"
+            android:textSize="24sp" />
+
+
+    </RelativeLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@id/img_cloud"
+        android:layout_below="@id/login_bar"
+        android:layout_marginTop="10dp"
+        android:overScrollMode="never" />
+
+    <ImageView
+        android:id="@+id/img_cloud"
+        android:layout_width="544dp"
+        android:layout_height="311dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-52.5dp"
+        android:layout_marginEnd="-131.5dp"
+        android:layout_marginBottom="-151dp"
+        android:background="@drawable/ic_cloud_left"
+        android:scaleType="fitCenter" />
+
+</RelativeLayout>
