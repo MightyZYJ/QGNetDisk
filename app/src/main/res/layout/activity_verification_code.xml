@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.mobile.qg.qgnetdisk.activities.VerificationCodeActivity">
+    tools:context="com.mobile.qg.qgnetdisk.ui.VerificationCodeActivity">
+
 
     <TextView
         android:layout_width="match_parent"
@@ -25,7 +26,7 @@
         android:gravity="center_horizontal"
         android:singleLine="false"
         android:layout_marginTop="10dp"/>
-    <com.mobile.qg.qgnetdisk.view.VerificationCodeView
+    <com.mobile.qg.qgnetdisk.widget.VerificationCodeView
         android:id="@+id/verificationcodeview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

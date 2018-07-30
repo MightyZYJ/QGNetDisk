@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">QGNetDisk</string>
+
+    <drawable name="normal">#FFFFFF</drawable>
+    <drawable name="pressed">#CCCCCC</drawable>
+
+    <string name="title_activity_file">FileActivity</string>
+    <string name="title_activity_file_list">FileListActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="search_result">搜索结果</string>
+    <string name="search">搜索</string>
+    <string name="email">邮箱</string>
+    <string name="password">密码</string>
+    <string name="login">登录</string>
+    <string name="forget_password">忘记密码</string>
+    <string name="nickname">昵称</string>
+    <string name="next">下一步</string>
 </resources>
