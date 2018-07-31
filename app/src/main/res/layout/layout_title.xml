@@ -3,35 +3,60 @@
     android:layout_width="match_parent"
     android:layout_height="68dp">
 
+    <ImageView
+        android:id="@+id/title_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:padding="10dp"
+        android:src="@drawable/icon_appbar_return"
+        android:visibility="invisible" />
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/title_head"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_margin="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
         android:src="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/title_user"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="22dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="QG云盘"
+        android:text="QGStudio"
         android:textColor="#1F1F1F"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <Button
-        android:id="@+id/title_list"
+        android:id="@+id/title_search"
         android:layout_width="24dp"
-        android:layout_height="16dp"
+        android:layout_height="24dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/icon_appbar_list" />
+        android:background="@drawable/search" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary" />
+
+    <Button
+        android:id="@+id/title_download"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@id/title_search"
+        android:background="@drawable/download" />
 
 </RelativeLayout>

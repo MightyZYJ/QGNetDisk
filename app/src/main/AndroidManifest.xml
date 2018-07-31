@@ -28,19 +28,37 @@
             android:name=".ui.FileListActivity"
             android:label="@string/title_activity_file_list"
             android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".ui.SearchActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible" />
 
-        <activity android:name=".ui.LoginAndRegisterActivity">
+        <activity
+            android:name=".ui.LoginAndRegisterActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.VerificationCodeActivity" />
+        <activity android:name=".ui.VerifyCodeActivity" />
+
+        <activity
+            android:name=".ui.FolderActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".ui.DownloadAndUploadActivity" />
+
+        <activity
+            android:name=".ui.ForgetPasswordActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".ui.ResetPasswordActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
     </application>
 

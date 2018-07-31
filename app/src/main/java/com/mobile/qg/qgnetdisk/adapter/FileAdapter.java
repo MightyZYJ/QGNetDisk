@@ -60,6 +60,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         this.mFileClickListener = listener;
     }
 
+    public ArrayList<ClientFile> multiConfirm() {
+        ArrayList<ClientFile> selectArray = new ArrayList<>();
+        for (Integer i : mMap.keySet()) {
+            selectArray.add(mClientFileArrayList.get(i));
+        }
+        return selectArray;
+    }
 
     /**
      * ViewHolder
@@ -93,6 +100,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
     public int selectionMode() {
         return mode;
+    }
+
+    public void refreshList(ArrayList<ClientFile> files) {
+        mClientFileArrayList = files;
+        notifyDataSetChanged();
     }
 
     /**
@@ -129,8 +141,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                 if (mode == MULTI_SELECTION) {
                     holder.select.setChecked(!mMap.containsKey(position));
                 } else {
-                    Toast.makeText(mContext, "文件预览功能正在开发中。。。", Toast.LENGTH_SHORT).show();
                     if (mFileClickListener != null) {
+                        Log.e(TAG, "onClick: " + mClientFileArrayList.get(position).toString());
                         mFileClickListener.OnFileItemClick(mClientFileArrayList.get(position));
                     }
                 }

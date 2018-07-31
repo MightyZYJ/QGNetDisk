@@ -22,4 +22,15 @@
         <!--光标样式-->
         <attr name="et_cursor" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="TitleView">
+
+        <attr name="type" format="enum">
+            <enum name="qg" value="0" />
+            <enum name="folder" value="1" />
+        </attr>
+
+    </declare-styleable>
+
+
 </resources>

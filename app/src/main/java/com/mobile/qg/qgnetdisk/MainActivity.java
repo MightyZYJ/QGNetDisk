@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         ClientUser.reset();
-                        int result = userHttpHelper.sendVerifyCode("1123434219@qq.com");
+                        int result = userHttpHelper.sendRegisterVerifyCode("1123434219@qq.com");
                     }
                 }).start();
             }

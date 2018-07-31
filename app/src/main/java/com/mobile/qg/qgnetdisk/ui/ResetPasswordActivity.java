@@ -11,66 +11,93 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.mobile.qg.qgnetdisk.R;
+import com.mobile.qg.qgnetdisk.entity.ClientUser;
+import com.mobile.qg.qgnetdisk.http.UserHttpHelper;
+import com.mobile.qg.qgnetdisk.util.ToastUtil;
 import com.mobile.qg.qgnetdisk.util.VerificationUtil;
 
 public class ResetPasswordActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private String            firstNewPassword;
-    private String            secondNewPassword;
     private TextInputEditText et_reset_first_password;
-    private TextInputLayout   til_reset_first_password;
     private TextInputEditText et_reset_second_password;
-    private TextInputLayout   til_reset_second_password;
-    private Button            btn_reset_password;
-    private String            mPassword;
-    private String            mEmail;
-    private String            mUserName;
     private static final String TAG = "ResetPasswordActivity";
+    private final static String FLAG_RESET = "reset";
+    private final static String FLAG_MODIFY = "modify";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        initView();
-    }
 
-    private void initView() {
-        et_reset_first_password = (TextInputEditText) findViewById(R.id.et_reset_first_password);
-        til_reset_first_password = (TextInputLayout) findViewById(R.id.til_reset_first_password);
-        et_reset_second_password = (TextInputEditText) findViewById(R.id.et_reset_second_password);
-        til_reset_second_password = (TextInputLayout) findViewById(R.id.til_reset_second_password);
-        btn_reset_password = (Button) findViewById(R.id.btn_reset_password);
-        
-        btn_reset_password.setOnClickListener(this);
+        et_reset_first_password = findViewById(R.id.et_reset_first_password);
+        et_reset_second_password = findViewById(R.id.et_reset_second_password);
+        findViewById(R.id.reset_confirm).setOnClickListener(this);
+        findViewById(R.id.reset_back).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_reset_password:
-                firstNewPassword=et_reset_first_password.getText().toString();
-                secondNewPassword =et_reset_second_password.getText().toString();
-                if (firstNewPassword.equals(secondNewPassword)){
+            case R.id.reset_confirm:
+                final String firstNewPassword = et_reset_first_password.getText().toString();
+                final String secondNewPassword = et_reset_second_password.getText().toString();
+                boolean isEquals = firstNewPassword.equals(secondNewPassword);
+                boolean isFormatCorrect = VerificationUtil.PasswordCorrect(firstNewPassword, this);
+                if (isEquals && isFormatCorrect) {
 
-                    mPassword=firstNewPassword;
-                    Intent intent=getIntent();
-                    mEmail=intent.getStringExtra("email");
-                    Log.e(TAG, "邮箱="+mEmail+"新密码="+mPassword );
-                    /*这里获得了邮箱和新密码，接下来写网络请求的部分*/
+                    Intent intent = getIntent();
+                    String flag = intent.getStringExtra("flag");
+                    if (flag == null) return;
 
-                    if (VerificationUtil.PasswordCorrect(mPassword,this)){
-                        /*只有密码的格式正确，才能进行接下来的网络请求*/
-                        Toast.makeText(this, "重设密码成功", Toast.LENGTH_SHORT).show();
+                    if (flag.equals(FLAG_RESET)) {
+                        final String email = intent.getStringExtra("email");
+                        if (email == null) return;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                int result = new UserHttpHelper().resetPassword(email, firstNewPassword);
+                                if (result == 200) {
+                                    notifyError("重设密码成功");
+                                    startActivity(new Intent(ResetPasswordActivity.this, LoginAndRegisterActivity.class));
+                                } else {
+                                    notifyError("重设密码失败，请检查网络连接");
+                                }
+                            }
+                        }).start();
+
+                    } else if (flag.equals(FLAG_MODIFY)) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                int result = new UserHttpHelper().modifyPassword(firstNewPassword);
+                                if (result == 200) {
+                                    notifyError("重设密码成功");
+                                    finish();
+                                } else {
+                                    notifyError("重设密码失败，请检查网络连接");
+                                }
+                            }
+                        }).start();
                     }
-                    
-                } else{
-                    Toast.makeText(this, "两次输入的密码不一致，请重新检查", Toast.LENGTH_SHORT).show();
+
+                } else if (!isEquals) {
+                    ToastUtil.CenterToast(this, "两次输入的密码不一致，请重新检查");
                 }
+
+                break;
+            case R.id.reset_back:
+                finish();
                 break;
         }
     }
 
+    private void notifyError(final String error) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.CenterToast(ResetPasswordActivity.this, error);
+            }
+        });
+    }
 
-
-  
 }

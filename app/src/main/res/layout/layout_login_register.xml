@@ -56,25 +56,23 @@
 
     </RelativeLayout>
 
+    <com.mobile.qg.qgnetdisk.widget.CloudView
+        android:id="@+id/img_cloud"
+        android:layout_width="545dp"
+        android:layout_height="545dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-300dp"
+        android:layout_marginBottom="-300dp"
+        android:background="@drawable/cloud"
+        android:scaleType="fitCenter" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_above="@id/img_cloud"
         android:layout_below="@id/login_bar"
         android:layout_marginTop="10dp"
         android:overScrollMode="never" />
 
-    <ImageView
-        android:id="@+id/img_cloud"
-        android:layout_width="544dp"
-        android:layout_height="311dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="-52.5dp"
-        android:layout_marginEnd="-131.5dp"
-        android:layout_marginBottom="-151dp"
-        android:background="@drawable/ic_cloud_left"
-        android:scaleType="fitCenter" />
 
 </RelativeLayout>

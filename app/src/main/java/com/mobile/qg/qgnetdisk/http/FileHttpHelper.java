@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.mobile.qg.qgnetdisk.entity.ClientFile;
+import com.mobile.qg.qgnetdisk.entity.ClientUser;
 import com.mobile.qg.qgnetdisk.entity.NetFile;
 import com.mobile.qg.qgnetdisk.entity.User;
 import com.mobile.qg.qgnetdisk.util.Parameter;
@@ -95,7 +96,7 @@ public class FileHttpHelper {
 
     private final static String DOWNLOAD = "download?filepath=*";
 
-    private final static String CREATE_FOLDER = "newfolder?filepath=*&fileid=*&filename";
+    private final static String CREATE_FOLDER = "newfolder?filepath=*&fileid=*&filename=*&userid=*";
 
     private final static String DELETE_FILE = "deletefile";
     private final static String DELETE_FILE_POST = "{\n" +
@@ -108,6 +109,8 @@ public class FileHttpHelper {
 
     private final static String QUERY_FILE = "searchfile?key=*&page=*&type=*";
 
+    private final static int CONNECT_TIMEOUT = 5000;
+
     /**
      * 读取输入流
      *
@@ -115,7 +118,7 @@ public class FileHttpHelper {
      * @return JSON字段
      * @throws IOException
      */
-    public String readInputStream(InputStream inputStream) throws IOException {
+    private String readInputStream(InputStream inputStream) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -203,6 +206,12 @@ public class FileHttpHelper {
 
     }
 
+    /**
+     * JSON --> 文件列表
+     *
+     * @param json
+     * @return
+     */
     private ArrayList<NetFile> JSON2File(JSONObject json) {
         try {
             ArrayList<NetFile> netFiles = new ArrayList<>();
@@ -228,28 +237,47 @@ public class FileHttpHelper {
         }
     }
 
+    //---------------------新建文件夹
+
+    /**
+     * 创建文件夹
+     *
+     * @param folder     当前所在的文件夹
+     * @param folderName 新文件夹的名字
+     * @return 刷新文件列表
+     */
     public ArrayList<NetFile> createNewFolder(NetFile folder, String folderName) {
+        ArrayList<NetFile> netFiles = new ArrayList<>();
         try {
 
             HttpURLConnection connection = (HttpURLConnection) (new URL(ROOT + FILE
                     + new Parameter(CREATE_FOLDER).setParameter(
                     folder.getRealpath(),
                     String.valueOf(folder.getFileid()),
-                    folderName
+                    folderName,
+                    String.valueOf(ClientUser.getInstance().getUserId())
             ))).openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
 
-            ArrayList<NetFile> netFiles = JSON2File(readInputStream(connection.getInputStream()));
-
+            netFiles = JSON2File(readInputStream(connection.getInputStream()));
             connection.disconnect();
-            return netFiles;
 
         } catch (IOException e) {
             e.printStackTrace();
-            return new ArrayList<>();
         }
+        return netFiles;
     }
 
+    //---------------------删除文件/文件夹
+
+    /**
+     * 删除文件
+     *
+     * @param user
+     * @param file
+     * @return
+     */
     public ArrayList<NetFile> deleteFile(User user, NetFile file) {
         ArrayList<NetFile> files = new ArrayList<>();
         try {
@@ -261,11 +289,10 @@ public class FileHttpHelper {
             connection.setRequestMethod("POST");
 
             JSONObject jsonObject = new JSONObject(DELETE_FILE_POST);
-            jsonObject.put("user", new JSONObject(new Gson().toJson(user)));
-            jsonObject.put("filepath", file.getRealpath());
-            jsonObject.put("fileid", file.getFileid());
+            jsonObject.put("user", new JSONObject(new Gson().toJson(user)))
+                    .put("filepath", file.getRealpath())
+                    .put("fileid", file.getFileid());
             Log.e(TAG, "deleteFile: " + jsonObject.toString());
-            Log.e(TAG, "deleteFile: " + jsonObject.getString("filepath"));
 
             connection.getOutputStream().write(jsonObject.toString().getBytes());
             files = JSON2File(readInputStream(connection.getInputStream()));
@@ -277,14 +304,27 @@ public class FileHttpHelper {
         return files;
     }
 
-    public ArrayList<NetFile> showFileList(NetFile folder) {
+    //---------------------展示文件目录
+
+    public final static String SORT_NUM = "&type=num";
+    public final static String SORT_TIME = "&type=time";
+    public final static String SORT_WORD = "&type=word";
+
+    /**
+     * 文件目录展示
+     *
+     * @param folder
+     * @return
+     */
+    public ArrayList<NetFile> showFileList(NetFile folder, String... type) {
         ArrayList<NetFile> files = new ArrayList<>();
         try {
             HttpURLConnection connection = (HttpURLConnection) (new URL(ROOT + FILE
-                    + new Parameter(SHOW_FILE_LIST).setParameter(
-                    String.valueOf(folder.getFileid())
-            ))).openConnection();
+                    + new Parameter(SHOW_FILE_LIST).setParameter(String.valueOf(folder.getFileid()))
+                    + (type.length == 0 ? "" : type[0])
+            )).openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
             files = JSON2File(readInputStream(connection.getInputStream()));
             connection.disconnect();
         } catch (IOException e) {
@@ -293,15 +333,21 @@ public class FileHttpHelper {
         return files;
     }
 
-    public ArrayList<NetFile> query(String key, int page, int type) {
+    //---------------------模糊搜索
+
+    /**
+     *
+     * @param key
+     * @param folderId
+     * @return
+     */
+    public ArrayList<NetFile> query(String key, int folderId) {
         ArrayList<NetFile> files = new ArrayList<>();
         try {
             HttpURLConnection connection = (HttpURLConnection) (new URL(ROOT + FILE
                     + new Parameter(SHOW_FILE_LIST).setParameter(
                     key,
-                    String.valueOf(page),
-                    String.valueOf(type)
-            ))).openConnection();
+                    String.valueOf(folderId)))).openConnection();
             connection.setRequestMethod("GET");
             files = JSON2File(readInputStream(connection.getInputStream()));
             connection.disconnect();

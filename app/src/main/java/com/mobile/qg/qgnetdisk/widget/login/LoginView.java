@@ -188,6 +188,11 @@ public class LoginView extends LinearLayout implements ViewPager.OnPageChangeLis
             this.mView = mView;
         }
 
+        /**
+         * 初始化注册页面
+         * 寻找控件
+         * 添加点击监听器
+         */
         void init() {
             mContext = getContext();
             mEditText_Email = mView.findViewById(R.id.edit_email);

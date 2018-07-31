@@ -24,22 +24,13 @@
                 android:layout_height="wrap_content"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-            <include
-                layout="@layout/layout_title"
+            <com.mobile.qg.qgnetdisk.widget.TitleView
+                android:id="@+id/title_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:type="qg" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
-
-        <include
-            android:id="@+id/search_view"
-            layout="@layout/layout_search"
-            android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="16dp" />
 
     </android.support.design.widget.AppBarLayout>
 

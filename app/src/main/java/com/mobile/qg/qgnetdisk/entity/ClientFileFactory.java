@@ -22,13 +22,13 @@ public class ClientFileFactory {
      * 6.手游
      */
     private final static int[] GROUP_ICON_IDS = {
-            R.drawable.icon_file_frontend,
-            R.drawable.icon_file_backgroundnetwork,
-            R.drawable.icon_file_flushbonading,
-            R.drawable.icon_file_mobile,
-            R.drawable.icon_file_datamining,
-            R.drawable.icon_file_designer,
-            R.drawable.icon_file_mobilegame
+            R.drawable.icon_frontend,
+            R.drawable.icon_backgroundnetwork,
+            R.drawable.icon_flushbonading,
+            R.drawable.icon_mobile,
+            R.drawable.icon_datamining,
+            R.drawable.icon_designer,
+            R.drawable.icon_mobilegame
     };
 
     /**

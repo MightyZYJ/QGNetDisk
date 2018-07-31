@@ -9,6 +9,7 @@ import com.mobile.qg.qgnetdisk.R;
 import com.mobile.qg.qgnetdisk.entity.User;
 import com.mobile.qg.qgnetdisk.http.HttpStatus;
 import com.mobile.qg.qgnetdisk.http.UserHttpHelper;
+import com.mobile.qg.qgnetdisk.util.ToastUtil;
 import com.mobile.qg.qgnetdisk.widget.login.LoginView;
 
 public class LoginAndRegisterActivity extends AppCompatActivity {
@@ -19,8 +20,6 @@ public class LoginAndRegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_register);
-        /*隐藏顶部导航栏*/
-        getSupportActionBar().hide();
 
         LoginView loginView = findViewById(R.id.login_view);
         loginView.setOnSubmitListener(new LoginView.OnSubmitListener() {
@@ -33,10 +32,22 @@ public class LoginAndRegisterActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         int result = new UserHttpHelper().login(user);
+                        Log.e(TAG, "run: " + result);
                         if (result == HttpStatus.SUCCESS) {
                             Intent intent = new Intent(LoginAndRegisterActivity.this, FileListActivity.class);
                             startActivity(intent);
                             finish();
+                        } else if (result == HttpStatus.EMAIL_NON_EXIST) {
+                            notifyError("邮箱不存在");
+                        } else if (result == HttpStatus.PASSWORD_WRONG) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.PasswordErrorToast(LoginAndRegisterActivity.this);
+                                }
+                            });
+                        } else {
+                            notifyError("请检查网络连接");
                         }
                     }
                 }).start();
@@ -53,14 +64,17 @@ public class LoginAndRegisterActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        int result = new UserHttpHelper().sendVerifyCode(email);
+                        int result = new UserHttpHelper().sendRegisterVerifyCode(email);
+                        Log.e(TAG, "run: " + result);
                         if (result == HttpStatus.SUCCESS) {
-                            Intent intent = new Intent(LoginAndRegisterActivity.this, VerificationCodeActivity.class);
+                            Intent intent = new Intent(LoginAndRegisterActivity.this, VerifyCodeActivity.class);
                             intent.putExtra("email", email);
                             intent.putExtra("nickname", nickname);
                             intent.putExtra("password", password);
                             intent.putExtra("flag", "register");
                             startActivity(intent);
+                        } else {
+                            notifyError("请检查网络连接");
                         }
                     }
                 }).start();
@@ -68,4 +82,14 @@ public class LoginAndRegisterActivity extends AppCompatActivity {
         });
 
     }
+
+    private void notifyError(final String error) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.CenterToast(LoginAndRegisterActivity.this, error);
+            }
+        });
+    }
+
 }
