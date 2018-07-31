@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.mobile.qg.qgnetdisk.ui.VerificationCodeActivity">
+    tools:context="com.mobile.qg.qgnetdisk.ui.VerifyCodeActivity">
 
     <TextView
         android:layout_width="match_parent"
