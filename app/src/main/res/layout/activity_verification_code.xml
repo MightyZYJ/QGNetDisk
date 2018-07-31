@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.mobile.qg.qgnetdisk.ui.VerifyCodeActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#424242"
+        android:text="验证码已发送到您的邮箱中"
+        android:textSize="28sp"
+        android:gravity="center_horizontal"
+        android:singleLine="false"
+        android:layout_marginTop="80dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#424242"
+        android:text="请输入验证码"
+        android:textSize="28sp"
+        android:gravity="center_horizontal"
+        android:singleLine="false"
+        android:layout_marginTop="10dp"/>
+    <com.mobile.qg.qgnetdisk.widget.VerificationCodeView
+        android:id="@+id/verificationcodeview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:et_bg="@drawable/et_login_code"
+        app:et_cursor="@drawable/et_cursor"
+        app:et_inputType="number"
+        app:et_number="4"
+        app:et_text_color="@android:color/black"
+        app:et_text_size="8sp" />
+
+</LinearLayout>

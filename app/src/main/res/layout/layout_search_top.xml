@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="68dp"
+    android:background="#FFFFFF">
+
+    <ImageView
+        android:id="@+id/search_return"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerVertical="true"
+        android:layout_margin="16dp"
+        android:src="@drawable/icon_appbar_return" />
+
+    <EditText
+        android:id="@+id/search_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="100dp"
+        android:layout_toEndOf="@id/search_return"
+        android:background="@null"
+        android:ellipsize="end"
+        android:hint="输入文件名/文件类型/文件上传者"
+        android:imeOptions="actionSearch"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="#424242"
+        android:textColorHint="#8A8A8A"
+        android:textSize="15sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/search_edit"
+        android:layout_alignStart="@id/search_edit"
+        android:layout_marginEnd="30dp"
+        android:background="@color/colorPrimary" />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary" />
+
+</RelativeLayout>
