@@ -14,20 +14,31 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.mobile.qg.qgnetdisk.R;
 import com.mobile.qg.qgnetdisk.adapter.BottomMenuAdapter;
 import com.mobile.qg.qgnetdisk.adapter.FileAdapter;
+import com.mobile.qg.qgnetdisk.adapter.GroupAdapter;
 import com.mobile.qg.qgnetdisk.entity.ClientFile;
 import com.mobile.qg.qgnetdisk.entity.ClientFileFactory;
+import com.mobile.qg.qgnetdisk.entity.ClientUser;
 import com.mobile.qg.qgnetdisk.entity.NetFile;
 import com.mobile.qg.qgnetdisk.fragment.BottomPopFragment;
 import com.mobile.qg.qgnetdisk.http.FileHttpHelper;
+import com.mobile.qg.qgnetdisk.util.ToastUtil;
+import com.mobile.qg.qgnetdisk.widget.NavHeadView;
+import com.mobile.qg.qgnetdisk.widget.TitleView;
 
 import java.util.ArrayList;
 
 public class FileListActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FileAdapter.OnItemFileClickListener, FileAdapter.OnMultiSelectionChangeListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        FileAdapter.OnItemFileClickListener,
+        FileAdapter.OnMultiSelectionChangeListener,
+        TitleView.OnTiTleOperationListener {
+
     private static final String TAG = "FileListActivity";
 
     private RecyclerView mFileRecyclerView;
@@ -37,51 +48,71 @@ public class FileListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        TitleView titleView = findViewById(R.id.title_view);
+        titleView.setOnTitleOperationListener(this);
+
+        ClientUser user = ClientUser.getInstance();
+        titleView.setHead(user.getNickName());
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ArrayList<NetFile> files1 = new ArrayList<>();
-        for (int i = 1; i < 15; i++) {
-            files1.add(new NetFile(i, "file", "2018-7-28", 123456789L));
-        }
-        ArrayList<ClientFile> files2 = ClientFileFactory.packFile(files1);
+        NavHeadView navHeadView = navigationView.getHeaderView(0).findViewById(R.id.nav_head_view);
+        navHeadView.initNav(user);
 
         mFileRecyclerView = findViewById(R.id.content_file_recycler);
         mFileRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+//        RecyclerView recent = findViewById(R.id.content_recent_recycler);
+//        LinearLayoutManager manager = new LinearLayoutManager(this);
+//        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+//        recent.setLayoutManager(manager);
+//        GroupAdapter adapter = new GroupAdapter(files2);
+//        recent.setAdapter(adapter);
 
-        requstFileList();
-
-        findViewById(R.id.search_view).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FileListActivity.this, SearchActivity.class);
-                startActivity(intent);
-            }
-        });
+        requestFileList();
 
     }
 
-    private void requstFileList() {
+    private void requestFileList() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 NetFile QG = new NetFile();
                 QG.setFileid(1);
-                ArrayList<ClientFile> files = ClientFileFactory.packFile(new FileHttpHelper().showFileList(QG));
-                mFileAdapter = new FileAdapter(files);
-                mFileAdapter.setOnFileClickListener(FileListActivity.this);
-                mFileAdapter.setOnSelectionChangeListener(FileListActivity.this);
-                mFileRecyclerView.setAdapter(mFileAdapter);
+                final ArrayList<ClientFile> files = ClientFileFactory.packFile(new FileHttpHelper().showFileList(QG));
+                files.remove(0);
+
+                if (mFileAdapter == null) {
+                    Log.e(TAG, "run: 1");
+                    mFileAdapter = new FileAdapter(files);
+                    mFileAdapter.setOnSelectionChangeListener(FileListActivity.this);
+                    mFileAdapter.setOnFileClickListener(FileListActivity.this);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFileRecyclerView.setAdapter(mFileAdapter);
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "run: 1");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFileAdapter.refreshList(files);
+                        }
+                    });
+                }
             }
         }).start();
     }
@@ -101,31 +132,35 @@ public class FileListActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        switch (item.getItemId()) {
+            case R.id.menu_permission:
+                break;
+            case R.id.menu_message:
+                break;
+            case R.id.menu_search:
+                startActivity(new Intent(FileListActivity.this, SearchActivity.class));
+                break;
+            case R.id.menu_setting:
+                break;
+            case R.id.menu_quit:
+                break;
+        }
         return true;
     }
 
     @Override
     public void OnFileItemClick(ClientFile clientFile) {
-        Log.e(TAG, "OnFileItemClick: " + clientFile.getFilename());
+        Log.e(TAG, "OnFileItemClick: " + clientFile.toString());
+        if (clientFile.getFilename().contains(".")) {
+            ToastUtil.CenterToast(FileListActivity.this, "文件预览功能正在开发中。。。");
+        } else {
+            Intent intent = new Intent(FileListActivity.this, FolderActivity.class);
+            intent.putExtra("file", clientFile);
+            startActivity(intent);
+        }
     }
 
     /**
@@ -172,4 +207,22 @@ public class FileListActivity extends AppCompatActivity
     public void OnMultiSelectionClose() {
         Log.e(TAG, "OnMultiSelectionClose: ");
     }
+
+    @Override
+    public void onBack() {
+
+    }
+
+    @Override
+    public void onDownload() {
+        Intent intent = new Intent(FileListActivity.this, DownloadAndUploadActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onSearch() {
+        Intent intent = new Intent(FileListActivity.this, SearchActivity.class);
+        startActivity(intent);
+    }
+
 }

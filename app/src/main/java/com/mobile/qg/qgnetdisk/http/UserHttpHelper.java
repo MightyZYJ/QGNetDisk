@@ -37,8 +37,9 @@ public class UserHttpHelper {
      */
     private final static String USER = "user/";
 
-    private final static String SEND_VERIFYCODE = "sendverifycode?email=*";
     private final static String REGISTER = "register";
+    private final static String SEND_VERIFYCODE = "sendverifycode?email=*";
+    private final static String IS_REGISTER = "&isregister";
     private final static String REGISTER_POST = "{\n" +
             "  \"email\":\"用户邮箱\",\n" +
             "  \"password\":\"用户密码\",\n" +
@@ -46,18 +47,21 @@ public class UserHttpHelper {
             "  \"verifycode\":\"邮箱验证码\"\n" +
             "}";
 
-
     private final static String LOGIN = "login";
     private final static String LOGIN_POST = "{\n" +
             "  \"email\":\"用户邮箱\",\n" +
             "  \"password\":\"用户密码\"\n" +
             "}";
 
+    private final static String VALIDATE = "validateverifycode";
+    private final static String VALIDATE_POST = "{\n" +
+            "  \"email\":\"用户邮箱\",\n" +
+            "  \"verifycode\":\"验证码\"\n" +
+            "}";
     private final static String RESET_PASSWORD = "resetpassword";
     private final static String RESET_PASSWORD_POST = "{\n" +
             "  \"email\":\"用户邮箱\",\n" +
-            "  \"password\":\"新密码\",\n" +
-            "  \"verifycode\":\"邮箱验证码\"\n" +
+            "  \"password\":\"新密码\"\n" +
             "}";
 
     private final static String MODIFY_NICKNAME = "modifynickname?newnickname=*&userid=*";
@@ -72,14 +76,16 @@ public class UserHttpHelper {
 
     private final static String USER_LIST = "listuser";
 
+    private final static int CONNECT_TIMEOUT = 5000;
+
     /**
      * 读取输入流并关闭
      *
      * @param inputStream 输入流
      * @return JSON字段
-     * @throws IOException
+     * @throws IOException IO
      */
-    public String readInputStream(InputStream inputStream) throws IOException {
+    private String readInputStream(InputStream inputStream) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         String line;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -113,6 +119,7 @@ public class UserHttpHelper {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(ROOT + USER + action).openConnection();
             connection.setRequestMethod("POST");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setUseCaches(false);
@@ -122,26 +129,32 @@ public class UserHttpHelper {
                 case REGISTER://注册
                     object = new JSONObject(REGISTER_POST);
                     object.put("email", user.getEmail())
+                            .put("password", user.getPassword())
                             .put("nickname", user.getNickName())
                             .put("verifycode", verifyCode);
                     break;
                 case MODIFY_PASSWORD://修改密码
                     object = new JSONObject(MODIFY_PASSWORD_POST);
-                    object.put("userid", user.getUserId());
+                    object.put("userid", user.getUserId())
+                            .put("password", user.getPassword());
                     break;
                 case LOGIN://登陆
                     object = new JSONObject(LOGIN_POST);
-                    object.put("email", user.getEmail());
+                    object.put("email", user.getEmail())
+                            .put("password", user.getPassword());
                     break;
+                case VALIDATE://（忘记密码）检查验证码
+                    object = new JSONObject(VALIDATE_POST);
+                    object.put("email", user.getEmail())
+                            .put("verifycode", verifyCode);
                 case RESET_PASSWORD://重置密码
                     object = new JSONObject(RESET_PASSWORD_POST);
                     object.put("email", user.getEmail())
-                            .put("verifycode", verifyCode);
+                            .put("password", user.getPassword());
                     break;
                 default:
                     return -1;
             }
-            object.put("password", user.getPassword());
 
             Log.e(TAG, "post: " + object.toString());
 
@@ -154,40 +167,31 @@ public class UserHttpHelper {
             outputStream.close();
             connection.disconnect();
 
-            JSON2User(jsonObject.getJSONObject("data").toString());
-            return Integer.parseInt(jsonObject.getString("status"));
+            int status = Integer.parseInt(jsonObject.getString("status"));
+            JSONObject data = jsonObject.getJSONObject("data");
+            if (status == HttpStatus.SUCCESS && data != null) {
+                JSON2User(data.toString());
+            }
+            return status;
 
         } catch (IOException e) {
             e.printStackTrace();
             return 500;
         } catch (JSONException e) {
-            return 501;
+            return 600;
         }
     }
 
+    //---------------------注册
+
     /**
-     * 发送邮箱验证码
+     * 注册时发送验证码
      *
      * @param email 邮箱
-     * @return 状态码
+     * @return 状态码200/500/501邮箱已存在
      */
-    public int sendVerifyCode(String email) {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(ROOT + USER
-                    + new Parameter(SEND_VERIFYCODE).setParameter(email)).openConnection();
-            connection.setRequestMethod("GET");
-
-            int result = Integer.parseInt(new JSONObject(readInputStream(connection.getInputStream())).getString("status"));
-            connection.disconnect();
-            return result;
-
-        } catch (IOException e) {
-            Log.e(TAG, "sendVerifyCode: " + 1);
-            return 500;
-        } catch (JSONException e) {
-            Log.e(TAG, "sendVerifyCode: " + 2);
-            return 501;
-        }
+    public int sendRegisterVerifyCode(String email) {
+        return sendResetVerifyCode(email + IS_REGISTER);
     }
 
     /**
@@ -195,47 +199,99 @@ public class UserHttpHelper {
      *
      * @param user       本地用户
      * @param verifyCode 验证码
-     * @return 状态码
+     * @return 状态码200/500/502验证码错误
      */
     public int register(User user, String verifyCode) {
         return post(user, verifyCode, REGISTER);
     }
 
+    //---------------------登陆
+
     /**
      * 登陆
      *
      * @param user 本地用户
-     * @return 状态码
+     * @return 状态码 200/500/503邮箱不存在/504密码错误
      */
     public int login(User user) {
         return post(user, "", LOGIN);
     }
 
+    //---------------------忘记密码
+
+    /**
+     * 忘记密码时发送邮箱验证码
+     *
+     * @param email 邮箱
+     * @return 状态码200/500/503邮箱不存在
+     */
+    public int sendResetVerifyCode(String email) {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) new URL(ROOT + USER + new Parameter(SEND_VERIFYCODE).setParameter(email)).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(10000);
+            return Integer.parseInt(new JSONObject(readInputStream(connection.getInputStream())).getString("status"));
+        } catch (IOException e) {
+            return 500;
+        } catch (JSONException e) {
+            return 600;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 判断邮箱和密码是否匹配
+     * 若发送验证码返回200则执行该方法
+     *
+     * @param email      邮箱
+     * @param verifyCode 验证码
+     * @return 状态码200/500/502邮箱不存在
+     */
+    public int validateVerifyCode(String email, String verifyCode) {
+        User user = new User();
+        user.setEmail(email);
+        return post(user, verifyCode, VALIDATE);
+    }
+
     /**
      * 登陆界面：忘记密码
+     * 设置新密码
      *
-     * @param user       本地用户
-     * @param verifyCode 验证码
-     * @return 状态码
+     * @param newPassword 新密码
+     * @return 状态码200/500/508
      */
-    public int resetPassword(User user, String verifyCode) {
-        return post(user, verifyCode, RESET_PASSWORD);
+    public int resetPassword(String email, String newPassword) {
+        User user = new User();
+        user.setPassword(newPassword);
+        user.setEmail(email);
+        return post(user, "", RESET_PASSWORD);
     }
+
+    //---------------------修改密码
 
     /**
      * 用户界面：修改密码
      *
-     * @param user 本地用户
-     * @return 状态码
+     * @param newPassword 新密码
+     * @return 状态码200/500/508
      */
-    public int modifyPassword(User user) {
+    public int modifyPassword(String newPassword) {
+        User user = new User();
+        user.setUserId(ClientUser.getInstance().getUserId());
+        user.setPassword(newPassword);
         return post(user, "", MODIFY_PASSWORD);
     }
+
+    //---------------------修改昵称
 
     /**
      * 用户界面：修改昵称
      *
-     * @param user 本地用户
+     * @param user 本地用户(Id+Nickname)
      * @return 状态码
      */
     public int modifyNickname(User user) {
@@ -244,6 +300,7 @@ public class UserHttpHelper {
                     new Parameter(MODIFY_NICKNAME).setParameter(user.getNickName(), String.valueOf(user.getUserId())))
                     .openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(readInputStream(inputStream));
             inputStream.close();
@@ -255,20 +312,31 @@ public class UserHttpHelper {
         }
     }
 
+    public int modifyNickname(String newNickname) {
+        User user = new User();
+        user.setUserId(ClientUser.getInstance().getUserId());
+        user.setNickName(newNickname);
+        return modifyNickname(user);
+    }
+
+    //---------------------修改权限
+
     /**
      * 用户界面：权限修改
      * 获取本地User作为操作者，参数中的User为被操作者
      *
-     * @param user 目标用户
-     * @return 状态码
+     * @param targetUser 目标用户
+     * @return 状态码200/500/507没有权限
      */
-    public int modifyStatus(User user) {
+    public int modifyStatus(User targetUser) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(ROOT + USER +
                     new Parameter(MODIFY_STATUS)
-                            .setParameter(String.valueOf(ClientUser.getInstance().getUserId()), String.valueOf(user.getUserId())))
+                            .setParameter(String.valueOf(ClientUser.getInstance().getUserId()),
+                                    String.valueOf(targetUser.getUserId())))
                     .openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(readInputStream(inputStream));
             inputStream.close();
@@ -279,20 +347,26 @@ public class UserHttpHelper {
         }
     }
 
+    //---------------------申请展示用户列表
+
     /**
      * 用户界面：展示用户列表
+     * Nullable
      *
-     * @return
+     * @return ArrayList User
      */
     public ArrayList<User> userList() {
-        ArrayList<User> arrayList = new ArrayList<>();
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(ROOT + USER + USER_LIST).openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(CONNECT_TIMEOUT);
             InputStream inputStream = connection.getInputStream();
             JSONObject jsonObject = new JSONObject(readInputStream(inputStream));
             inputStream.close();
             connection.disconnect();
+
+            ArrayList<User> arrayList = new ArrayList<>();
+
             JSONArray userArray = jsonObject.getJSONObject("data").getJSONArray("users");
             for (int i = 0; i < userArray.length(); i++) {
                 JSONObject userJSON = userArray.getJSONObject(i);
@@ -302,7 +376,7 @@ public class UserHttpHelper {
 
             return arrayList;
         } catch (IOException | JSONException e) {
-            return arrayList;
+            return new ArrayList<>();
         }
     }
 

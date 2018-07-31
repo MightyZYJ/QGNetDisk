@@ -1,10 +1,12 @@
 package com.mobile.qg.qgnetdisk.entity;
 
+import java.io.Serializable;
+
 /**
  * 用于传输的基本File类
  * Created by 11234 on 2018/7/27.
  */
-public class NetFile implements Cloneable {
+public class NetFile implements Cloneable,Serializable {
 
     public NetFile() {
 
@@ -153,5 +155,21 @@ public class NetFile implements Cloneable {
         file.setUsername(username);
         file.setRealpath(realpath);
         return file;
+    }
+
+
+    @Override
+    public String toString() {
+        return "NetFile{" +
+                "fileid=" + fileid +
+                ", filename='" + filename + '\'' +
+                ", fatherid=" + fatherid +
+                ", userid=" + userid +
+                ", username='" + username + '\'' +
+                ", modifytime='" + modifytime + '\'' +
+                ", downloadtimes=" + downloadtimes +
+                ", filesize=" + filesize +
+                ", realpath='" + realpath + '\'' +
+                '}';
     }
 }

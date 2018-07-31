@@ -10,6 +10,7 @@
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
+        <item name="colorPrimaryDark">#FFFFFF</item>
         <item name="windowNoTitle">true</item>
     </style>
 
@@ -32,5 +33,4 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">#ff0014</item>
     </style>
-
 </resources>

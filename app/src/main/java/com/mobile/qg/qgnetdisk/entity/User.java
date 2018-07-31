@@ -27,7 +27,7 @@ public class User {
     private String nickname;
 
     /**
-     * 用户权限字段
+     * 用户权限字段 123
      */
     private int status;
 

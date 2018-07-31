@@ -17,7 +17,7 @@ public class ClientUser extends User {
 
     }
 
-    public static ClientUser getInstance() {
+    public synchronized static ClientUser getInstance() {
         return mInstance;
     }
 

@@ -1,11 +1,13 @@
 package com.mobile.qg.qgnetdisk.entity;
 
+import java.io.Serializable;
+
 /**
  * 用户本地的文件显示
  * （图标）
  * Created by 11234 on 2018/7/27.
  */
-public class ClientFile extends NetFile {
+public class ClientFile extends NetFile implements Serializable {
 
     private int iconId;
 
@@ -17,4 +19,9 @@ public class ClientFile extends NetFile {
         this.iconId = iconId;
     }
 
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
